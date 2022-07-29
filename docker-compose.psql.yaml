@@ -1,0 +1,43 @@
+version: '3.6'
+services:
+  gitlab-web:
+    image: 'gitlab/gitlab-ce:latest' #ce for community edition
+    restart: always
+    hostname: 'localhost'
+    container_name: gitlab-ce
+    environment:
+      GITLAB_OMNIBUS_CONFIG:  |
+        external_url 'http://localhost'
+        postgresql['enable'] = false
+        gitlab_rails['db_adapter'] = 'postgresql'
+        gitlab_rails['db_encoding'] = 'unicode'
+        gitlab_rails['db_host'] = 'db:5432'
+        gitlab_rails['db_password'] = '1234'
+    ports:
+      - '8080:80'
+      - '2443:443'
+    volumes:
+      - '$GITLAB_HOME/config:/etc/gitlab'
+      - '$GITLAB_HOME/logs:/var/log/gitlab'
+      - '$GITLAB_HOME/data:/var/opt/gitlab'
+    networks:
+      - gitlab
+    depends_on:
+      - db
+    
+  db:
+    image: postgres
+    restart: always
+    environment:
+      - POSTGRES_USER=gitlab
+      - POSTGRES_PASSWORD=1234
+      - POSTGRES_DB=gitlabhq_production
+    networks:
+      - gitlab
+    ports:
+      - "5436:5432"
+
+networks:
+  gitlab:
+    name: gitlab-network
+    external: false
