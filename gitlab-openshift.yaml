@@ -1,0 +1,21 @@
+apiVersion: apps.gitlab.com/v1beta1
+kind: GitLab
+metadata:
+  name: gitlab
+  namespace: gitlab-system
+spec:
+  chart:
+    version: 6.1.1
+    values:
+      certmanager:
+        install: false
+      global:
+        hosts:
+          domain: apps.xnkpeyx0.canadacentral.aroapp.io
+        ingress:
+          annotations:
+            route.openshift.io/termination: edge
+          configureCertmanager: false
+          class: none
+      nginx-ingress:
+        enabled: false
