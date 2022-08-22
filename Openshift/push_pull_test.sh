@@ -16,8 +16,14 @@ echo pull repository $BORDER1
 git_pull(){
     T=`date +%s`
     git clone https://root:T4dtFFFSQPxHK88QWhMy@gitlab.apps.xnkpeyx0.canadacentral.aroapp.io/gitlab-instance-15b29218/$REPO.git
-    cd $REPO
-    echo repository pulled in $BORDER2 $(expr `date +%s` - $T) s
+    if [ -d "`pwd`/${REPO}" ]
+    then
+        echo repository pulled in $BORDER2 $(expr `date +%s` - $T) s
+        cd $REPO
+    else
+        echo 'repository could not be pulled'
+        exit 0
+    fi
 }
 git_pull
 
@@ -50,17 +56,14 @@ git checkout main
 git merge $BRANCH_NAME
 echo merge completed in $BORDER2 $(expr `date +%s` - $T) s.
 
-# delete and pull again 
-echo pulling populated repository $BORDER1
-cd ..
-rm -R -f $REPO
-while [ -d "./test2" ]
-do
-    echo removing repository...
-done
-git_pull
+# clear repo for reuse
+echo clearing all files from repository $BORDER1
+rm -rf *.txt
+git add .
+git commit -m 'removing all files'
+git push
 
-#remove the repository itself
+# remove the repository itself
 cd ..
 rm -rf $REPO
 echo finish testing at $BORDER1 $(expr `date +%s` - $START) s - total elapsed time.
