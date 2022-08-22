@@ -1,49 +1,66 @@
 #!/bin/sh
 BORDER1='===================================================='
-BORDER2='---------------------------------------------------'
+BORDER2='---------------------------------------------------> '
 START=`date +%s`
+REPO='test2'
+BRANCH_NAME=push-pull-test-`date +%s`
+
 echo testing start at $BORDER1 $START s. 
 
-#set user permissions
+# set user permissions
 git config --global user.name "root"
 git config --global user.password "password"
 
-#pull repo
+# pull repo
+echo pull repository $BORDER1
 git_pull(){
     T=`date +%s`
-    git clone https://root:T4dtFFFSQPxHK88QWhMy@gitlab.apps.xnkpeyx0.canadacentral.aroapp.io/gitlab-instance-15b29218/test1.git
-    git remote add origin https://root:password@gitlab.apps.xnkpeyx0.canadacentral.aroapp.io/gitlab-instance-15b29218/test1.git
-
-    cd test1
-    echo repository contents $BORDER2 |
-    git switch -c main
+    git clone https://root:T4dtFFFSQPxHK88QWhMy@gitlab.apps.xnkpeyx0.canadacentral.aroapp.io/gitlab-instance-15b29218/$REPO.git
+    cd $REPO
     echo repository pulled in $BORDER2 $(expr `date +%s` - $T) s
 }
 git_pull
 
-#make rando files (1mb, 100mb, 1gb)
-echo starting push test $BORDER1 |
-truncate -s 1M one.txt
-truncate -s 100M onehundred.txt
-truncate -s 1000M onethousand.txt
+# create branch
+echo creating branch $BORDER1
+git checkout -b $BRANCH_NAME
 
-#push
-for file in one.txt onehundred.txt onethousand.txt
+# make rando files (1mb, 100mb, 1gb)
+echo making files for commits $BORDER1
+head -c 1MB /dev/urandom > one.txt
+head -c 100MB /dev/urandom > onehundred.txt
+head -c 500MB /dev/urandom > fivehundred.txt
+echo done...
+
+# push the files
+echo pushing files to remote branch $BORDER1
+for file in one.txt onehundred.txt fivehundred.txt
 do
-T=`date +%s`
-git add $file
-git commit -m 'adding file'
-git push 
-echo pushed $file in $BORDER2 $(expr `date +%s` - $T) s.
+    T=`date +%s`
+    git add $file
+    git commit -m 'adding file'
+    git push --set-upstream origin $BRANCH_NAME
+    echo pushed $file in $BORDER2 $(expr `date +%s` - $T) s.
 done
 
-#delete and pull again
+# merge the branches
+echo merging branch with main $BORDER1
+T=`date +%s`
+git checkout main
+git merge $BRANCH_NAME
+echo merge completed in $BORDER2 $(expr `date +%s` - $T) s.
+
+# delete and pull again 
+echo pulling populated repository $BORDER1
 cd ..
-rm -R -f test1
+rm -R -f $REPO
+while [ -d "./test2" ]
+do
+    echo removing repository...
+done
 git_pull
 
-#remove rando files and repo
+#remove the repository itself
 cd ..
-rm -R -f test1
-echo removed repository at $BORDER2 $(expr `date +%s` - $START) s.
-echo finish testing at $BORDER1 $(expr `date +%s` - $START) s.
+rm -rf $REPO
+echo finish testing at $BORDER1 $(expr `date +%s` - $START) s - total elapsed time.
