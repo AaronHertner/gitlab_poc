@@ -63,6 +63,12 @@ git add .
 git commit -m 'removing all files'
 git push
 
+git checkout $BRANCH_NAME
+rm -rf *.txt
+git add .
+git commit -m 'removing all files'
+git push
+
 # remove the repository itself
 cd ..
 rm -rf $REPO
