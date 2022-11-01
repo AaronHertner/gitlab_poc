@@ -8,14 +8,16 @@ spec:
     version: 6.2.2
     values:
       certmanager:
-        install: false
+        install: true
+      certmanager-issuer:
+        email: Aaron.Hertner@cra-arc.gc.ca
       global:
         hosts:
           domain: apps.xnkpeyx0.canadacentral.aroapp.io
         ingress:
           annotations:
             route.openshift.io/termination: edge
-          configureCertmanager: false
+          configureCertmanager: true
           class: none
       nginx-ingress:
         enabled: false
